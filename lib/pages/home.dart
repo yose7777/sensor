@@ -10,7 +10,9 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  String notif = "Memuat data..."; // Menyimpan data yang diambil
+  String notifCondition = "Memuat data..."; // Menyimpan data yang diambil
+ String valueCondition = "Memuat data..."; // Menyimpan data yang diambil
+ 
 
   @override
   void initState() {
@@ -25,13 +27,13 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  Future<void> _getData() async {
-    Map<String, String> data = await getDataFromFirebase();
-    setState(() {
-      notif = data['notif'] ?? "Data tidak ditemukan";
-    });
-  }
-
+Future<void> _getData() async {
+  Map<String, dynamic> data = await getDataFromFirebase();
+  setState(() {
+    notifCondition = data['notifCondition']; // Menampilkan string
+    valueCondition = data['valueCondition']; // Menampilkan number
+  });
+}
   // Fungsi untuk menampilkan dialog konfirmasi log out
   Future<bool> _showLogoutDialog(BuildContext context) async {
     return showDialog<bool>(
@@ -123,10 +125,10 @@ class _HomePageState extends State<HomePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              notif, // Menampilkan data yang diambil
+                              notifCondition, // Menampilkan data yang diambil
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 24,
+                                  fontSize: 19,
                                   fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 8),
@@ -136,14 +138,14 @@ class _HomePageState extends State<HomePage> {
                             ),
                             SizedBox(height: 8),
                             Text(
-                              '1285 hPa', // Bisa diganti dengan tekanan dari Firebase jika ada
+                              valueCondition, // Menampilkan data yang diambil
                               style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: 19,
                                   fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              'Pressure',
+                              'Besaran Getar',
                               style: TextStyle(color: Colors.grey, fontSize: 14),
                             ),
                           ],
@@ -164,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                                   fontWeight: FontWeight.bold),
                             ),
                             Text(
-                              'INDIK',
+                              'INDIKASI',
                               style: TextStyle(color: Colors.grey, fontSize: 14),
                             ),
                           ],
@@ -283,7 +285,7 @@ class BottomNavigationBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
-  icon: Icon(Icons.history, color: Colors.grey),
+  icon: Icon(Icons.work_history_outlined, color: Colors.grey),
   onPressed: () {
     Navigator.push(
       context,

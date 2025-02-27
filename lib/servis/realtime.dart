@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 
 Future<Map<String, String>> getDataFromFirebase() async {
   const String firebaseUrl =
-      'https://sgproject-4c7ed-default-rtdb.firebaseio.com/aman.json';
+      'https://sgproject-4c7ed-default-rtdb.firebaseio.com/Simulation/SensorModule.json';
 
   try {
     final response = await http.get(Uri.parse(firebaseUrl));
@@ -11,17 +11,20 @@ Future<Map<String, String>> getDataFromFirebase() async {
       final Map<String, dynamic> data = json.decode(response.body);
 
       return {
-        'notif': data['notif'] ?? "Data tidak ditemukan",
+        'notifCondition': data['notifCondition'] ?? "Data tidak ditemukan",
+         'valueCondition': data['valueCondition'] ?? "Data tidak ditemukan",
       };
     } else {
       return {
-        'notif': "Gagal mengambil data.",
+        'notifCondition': "Gagal mengambil data.",
+         'valueCondition': "Gagal mengambil data.",
       };
     }
   } catch (e) {
     print('Error: $e');
     return {
-      'notif': "Terjadi kesalahan.",
+      'notifCondition': "Terjadi kesalahan.",
+      'valueCondition': "Terjadi kesalahan.",
     };
   }
 }

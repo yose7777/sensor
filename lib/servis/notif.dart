@@ -2,19 +2,18 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-
 class LocalNotificationService {
-  static final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
+  static final FlutterLocalNotificationsPlugin _notificationsPlugin =
       FlutterLocalNotificationsPlugin();
 
-  static void initialize(GlobalKey<NavigatorState> navigatorKey) {
-    const AndroidInitializationSettings androidInitSettings =
+  static void initialize(GlobalKey<NavigatorState> navigatorKey) async {
+    const AndroidInitializationSettings androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
-    final InitializationSettings initSettings =
-        InitializationSettings(android: androidInitSettings);
+    const InitializationSettings initSettings =
+        InitializationSettings(android: androidSettings);
 
-    _flutterLocalNotificationsPlugin.initialize(
+    await _notificationsPlugin.initialize(
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         if (response.payload != null) {
@@ -22,56 +21,34 @@ class LocalNotificationService {
         }
       },
     );
-
-    // Handle jika aplikasi dibuka dari notifikasi saat background atau terminated
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
-      if (message != null) {
-        Future.delayed(Duration.zero, () {
-          _handleNotificationClick(message.data['screen'], navigatorKey);
-        });
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      _handleNotificationClick(message.data['screen'], navigatorKey);
-    });
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // Jika notifikasi diterima saat aplikasi aktif, tampilkan pop-up
-      if (message.notification != null) {
-        showNotification(message);
-      }
-    });
   }
 
   static void showNotification(RemoteMessage message) async {
-    var androidDetails = const AndroidNotificationDetails(
+    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
       'high_importance_channel',
       'Pemberitahuan Penting',
       importance: Importance.max,
       priority: Priority.high,
-      fullScreenIntent: true, // Pastikan notifikasi bisa muncul di layar penuh
-      category: AndroidNotificationCategory.alarm, // Memastikan Android menganggap ini darurat
+      fullScreenIntent: true,
     );
 
-    var generalNotificationDetails = NotificationDetails(android: androidDetails);
+    const NotificationDetails notificationDetails =
+        NotificationDetails(android: androidDetails);
 
-    await _flutterLocalNotificationsPlugin.show(
+    await _notificationsPlugin.show(
       0,
       message.notification?.title ?? "Peringatan!",
       message.notification?.body ?? "Ada kondisi bahaya!",
-      generalNotificationDetails,
-      payload: message.data['screen'],
+      notificationDetails,
+      payload: message.data['screen'], // ✅ Pastikan payload dikirim
     );
   }
 
   static void _handleNotificationClick(String payload, GlobalKey<NavigatorState> navigatorKey) {
     if (navigatorKey.currentState != null) {
-      String? currentRoute = ModalRoute.of(navigatorKey.currentContext!)?.settings.name;
-
-      if (payload == "DangerScreen" && currentRoute != '/danger') {
+      if (payload == "DangerScreen") {
         navigatorKey.currentState?.pushNamedAndRemoveUntil('/danger', (route) => false);
-      } else if (payload == "HomeScreen" && currentRoute != '/home') {
+      } else if (payload == "HomeScreen") {
         navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (route) => false);
       }
     }

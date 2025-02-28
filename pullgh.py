@@ -4,7 +4,7 @@ import os
 GITHUB_REPO_URL = "https://github.com/yose7777/sensor.git"
 BRANCH_NAME = "main"  # Ubah jika menggunakan branch lain
 
-def run_git_commands():
+def run_git_pull():
     try:
         # Inisialisasi Git jika belum ada
         os.system("git init")
@@ -18,18 +18,9 @@ def run_git_commands():
         # Tarik (pull) perubahan terbaru dari GitHub
         os.system(f"git pull origin {BRANCH_NAME}")
 
-        # Menambahkan semua perubahan
-        os.system("git add .")
-
-        # Commit perubahan dengan pesan
-        os.system('git commit -am "Auto update & push"')
-
-        # Push ke branch utama
-        os.system(f"git push origin {BRANCH_NAME}")
-
-        print("✅ Pull & Push ke GitHub berhasil!")
+        print("✅ Pull dari GitHub berhasil!")
     except Exception as e:
         print(f"❌ Terjadi kesalahan: {e}")
 
 if __name__ == "__main__":
-    run_git_commands()
+    run_git_pull()

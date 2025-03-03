@@ -43,6 +43,7 @@ void handleNotificationNavigation(RemoteMessage message) {
     navigatorKey.currentState?.push(MaterialPageRoute(
       builder: (context) =>
           screen == "DangerScreen" ? DangerScreen() : HomePage(),
+          
     ));
   }
 }

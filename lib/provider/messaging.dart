@@ -29,6 +29,11 @@ class FirebaseMessagingService {
       FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
         print("🔗 Notifikasi diklik: ${message.notification?.title}");
       });
+
+      FirebaseMessaging.instance.getInitialMessage().then((message) {
+        if (message != null) {
+        }
+      });
     } else {
       print('❌ Izin notifikasi ditolak');
     }
@@ -39,4 +44,9 @@ class FirebaseMessagingService {
     await dbRef.child('user_tokens').push().set({"token": token});
     print('✅ Token berhasil disimpan ke Firebase');
   }
+}
+
+Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  print("📢 Notifikasi diterima di background: ${message.notification?.title}");
+  LocalNotificationService.showNotification(message);
 }

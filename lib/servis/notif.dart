@@ -1,6 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:vibration_sensor/main.dart';
 
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -17,34 +18,13 @@ class LocalNotificationService {
       initSettings,
       onDidReceiveNotificationResponse: (NotificationResponse response) {
         if (response.payload != null) {
-          _handleNotificationClick(response.payload!, navigatorKey);
+          handleNotificationNavigationPayload(response.payload!, navigatorKey);
         }
       },
     );
-
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
-      if (message != null) {
-        Future.delayed(Duration.zero, () {
-          _handleNotificationClick(message.data['screen'], navigatorKey);
-        });
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      _handleNotificationClick(message.data['screen'], navigatorKey);
-    });
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      print("📩 Notifikasi diterima di foreground: ${message.notification?.title}");
-      if (message.notification != null) {
-        showNotification(message);
-      }
-    });
   }
 
   static void showNotification(RemoteMessage message) async {
-    print("⚡ Menampilkan notifikasi: ${message.notification?.title}");
-
     var androidDetails = const AndroidNotificationDetails(
       'high_importance_channel',
       'Pemberitahuan Penting',
@@ -66,15 +46,18 @@ class LocalNotificationService {
     );
   }
 
-  static void _handleNotificationClick(String payload, GlobalKey<NavigatorState> navigatorKey) {
-    if (navigatorKey.currentState != null) {
-      String? currentRoute = ModalRoute.of(navigatorKey.currentContext!)?.settings.name;
+  static void handleNotificationNavigation(RemoteMessage message) {
+    handleNotificationNavigationPayload(message.data['screen'], navigatorKey);
+  }
 
-      if (payload == "DangerScreen" && currentRoute != '/danger') {
-        navigatorKey.currentState?.pushNamedAndRemoveUntil('/danger', (route) => false);
-      } else if (payload == "HomeScreen" && currentRoute != '/home') {
-        navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (route) => false);
-      }
+  static void handleNotificationNavigationPayload(String? payload, GlobalKey<NavigatorState> navigatorKey) {
+    if (payload == null) return;
+    String? currentRoute = ModalRoute.of(navigatorKey.currentContext!)?.settings.name;
+
+    if (payload == "DangerScreen" && currentRoute != '/danger') {
+      navigatorKey.currentState?.pushNamedAndRemoveUntil('/danger', (route) => false);
+    } else if (payload == "HomeScreen" && currentRoute != '/home') {
+      navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }
 }

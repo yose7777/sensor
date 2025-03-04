@@ -17,35 +17,19 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  // Inisialisasi notifikasi lokal
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   LocalNotificationService.initialize(navigatorKey);
 
-  // Inisialisasi Firebase Cloud Messaging (FCM)
   FirebaseMessagingService.setupFCM();
-
-  // Setup handler untuk notifikasi di background & terminated
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
 }
 
-// Handler untuk notifikasi di background & terminated
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
-  handleNotificationNavigation(message);
-}
-
-// Fungsi untuk menangani navigasi berdasarkan data notifikasi
-void handleNotificationNavigation(RemoteMessage message) {
-  if (message.data.containsKey('screen')) {
-    String screen = message.data['screen'] ?? 'HomeScreen';
-
-    navigatorKey.currentState?.push(MaterialPageRoute(
-      builder: (context) =>
-          screen == "DangerScreen" ? DangerScreen() : HomePage(),
-          
-    ));
-  }
+  print("📢 Notifikasi diterima di background: ${message.notification?.title}");
+  LocalNotificationService.showNotification(message);
 }
 
 class MyApp extends StatefulWidget {
@@ -64,12 +48,11 @@ class _MyAppState extends State<MyApp> {
 
   void setupFCM() async {
     FirebaseMessaging messaging = FirebaseMessaging.instance;
-    
-    // Minta izin notifikasi (khusus iOS)
+
     await messaging.requestPermission();
 
-    // Konfigurasi FCM
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      print("📩 Notifikasi di foreground: ${message.notification?.title}");
       if (message.notification != null) {
         LocalNotificationService.showNotification(message);
       }
@@ -87,6 +70,17 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  void handleNotificationNavigation(RemoteMessage message) {
+    if (message.data.containsKey('screen')) {
+      String screen = message.data['screen'] ?? 'HomeScreen';
+
+      navigatorKey.currentState?.push(MaterialPageRoute(
+        builder: (context) =>
+            screen == "DangerScreen" ? DangerScreen() : HomePage(),
+      ));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return MultiProvider(
@@ -97,13 +91,13 @@ class _MyAppState extends State<MyApp> {
       child: Consumer<AuthProvider>(
         builder: (context, authProvider, _) {
           return MaterialApp(
-            navigatorKey: navigatorKey, // Tambahkan navigatorKey
+            navigatorKey: navigatorKey,
             debugShowCheckedModeBanner: false,
             initialRoute: authProvider.user != null ? '/home' : '/login',
             routes: {
               '/login': (context) => LoginScreen(),
               '/home': (context) => HomePage(),
-              '/danger': (context) => DangerScreen(), // Tambahkan ini
+              '/danger': (context) => DangerScreen(),
             },
           );
         },

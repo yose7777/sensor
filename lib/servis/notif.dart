@@ -2,7 +2,6 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 
-
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
@@ -23,7 +22,6 @@ class LocalNotificationService {
       },
     );
 
-    // Handle jika aplikasi dibuka dari notifikasi saat background atau terminated
     FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
       if (message != null) {
         Future.delayed(Duration.zero, () {
@@ -37,38 +35,36 @@ class LocalNotificationService {
     });
 
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      // Jika notifikasi diterima saat aplikasi aktif, tampilkan pop-up
+      print("📩 Notifikasi diterima di foreground: ${message.notification?.title}");
       if (message.notification != null) {
         showNotification(message);
       }
     });
   }
 
-static void showNotification(RemoteMessage message) async {
-  var androidDetails = const AndroidNotificationDetails(
-    'high_importance_channel',
-    'Pemberitahuan Penting',
-    channelDescription: 'Notifikasi ini penting untuk aplikasi',
-    importance: Importance.max,
-    priority: Priority.high,
-    fullScreenIntent: true,  // Memastikan notifikasi bisa muncul pop-up
-    category: AndroidNotificationCategory.message, // Kategori pesan
-    enableLights: true,
-    enableVibration: true,
-    playSound: true,
-  );
+  static void showNotification(RemoteMessage message) async {
+    print("⚡ Menampilkan notifikasi: ${message.notification?.title}");
 
-  var generalNotificationDetails = NotificationDetails(android: androidDetails);
+    var androidDetails = const AndroidNotificationDetails(
+      'high_importance_channel',
+      'Pemberitahuan Penting',
+      importance: Importance.max,
+      priority: Priority.high,
+      fullScreenIntent: true,
+      category: AndroidNotificationCategory.alarm,
+      sound: RawResourceAndroidNotificationSound('notif'),
+    );
 
-  await _flutterLocalNotificationsPlugin.show(
-    0,
-    message.notification?.title ?? "Peringatan!",
-    message.notification?.body ?? "Ada kondisi bahaya!",
-    generalNotificationDetails,
-    payload: message.data['screen'],
-  );
-}
+    var generalNotificationDetails = NotificationDetails(android: androidDetails);
 
+    await _flutterLocalNotificationsPlugin.show(
+      0,
+      message.notification?.title ?? "Peringatan!",
+      message.notification?.body ?? "Ada kondisi bahaya!",
+      generalNotificationDetails,
+      payload: message.data['screen'],
+    );
+  }
 
   static void _handleNotificationClick(String payload, GlobalKey<NavigatorState> navigatorKey) {
     if (navigatorKey.currentState != null) {

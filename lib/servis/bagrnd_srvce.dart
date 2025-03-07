@@ -13,7 +13,7 @@ class NotifikasiService {
         AndroidInitializationSettings('@mipmap/ic_launcher');
 
     final InitializationSettings initSettings =
-        InitializationSettings(android: androidInitSettings);
+        const InitializationSettings(android: androidInitSettings);
 
     _flutterLocalNotificationsPlugin.initialize(
       initSettings,
@@ -24,19 +24,11 @@ class NotifikasiService {
       },
     );
 
-    // 🔹 Tangani notifikasi jika aplikasi dalam keadaan terminated
-    FirebaseMessaging.instance.getInitialMessage().then((RemoteMessage? message) {
-      if (message != null && message.data['screen'] == "DangerScreen") {
-        _navigateToDangerScreen();
-      }
-    });
-
-    // 🔹 Tangani notifikasi saat aplikasi berjalan di foreground
+    // Setup handler untuk pesan dari Firebase  
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       _handleMessage(message);
     });
 
-    // 🔹 Tangani notifikasi saat pengguna mengetuk notifikasi di background
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       _handleMessage(message);
     });
@@ -53,28 +45,52 @@ class NotifikasiService {
     _showNotification(message);
   }
 
-  static void _showNotification(RemoteMessage message) async {
-    const AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
-      'high_importance_channel',
-      'Penting',
-      importance: Importance.high,
-      priority: Priority.high,
-      // sound: RawResourceAndroidNotificationSound('notif'),
-    );
-   
-    const NotificationDetails details = NotificationDetails(android: androidDetails);
+ static void _showNotification(RemoteMessage message) async {
+  // Default sound (null berarti pakai suara sistem)
+  String? soundName;
 
-    await _flutterLocalNotificationsPlugin.show(
-      0,
-      message.notification?.title ?? "🚨 Peringatan!",
-      message.notification?.body ?? "Terjadi kondisi bahaya!",
-      details,
-      payload: message.data['screen'],
-    );
+  if (message.data.containsKey('notifcondition')) {
+    String notifCondition = message.data['notifcondition'];
+
+    switch (notifCondition) {
+      case "GEMPA RINGAN!!!":
+        soundName = "notif"; // Pastikan file notif.mp3 ada di res/raw
+        break;
+      case "GEMPA SEDANG":
+        soundName = "notif"; 
+        break;
+      case "GEMPA BAHAYA!!!":
+        soundName = "notif"; 
+        break;
+      case "MODIARRRR!!!":
+        soundName = "notif"; 
+        break;
+      default:
+        soundName = null; // Gunakan suara default dari sistem HP
+    }
   }
 
+  final AndroidNotificationDetails androidDetails = AndroidNotificationDetails(
+    'high_importance_channel',
+    'Penting',
+    importance: Importance.high,
+    priority: Priority.high,
+    sound: soundName != null ? RawResourceAndroidNotificationSound(soundName) : null,
+  );
+
+  final NotificationDetails details = NotificationDetails(android: androidDetails);
+
+  await _flutterLocalNotificationsPlugin.show(
+    0,
+    message.notification?.title ?? "🚨 Peringatan!",
+    message.notification?.body ?? "Terjadi kondisi bahaya!",
+    details,
+    payload: message.data['screen'],
+  );
+}
+
   static void _navigateToDangerScreen() {
-    debugPrint("🔴 Navigasi ke DangerScreen");
+    // Implementasikan navigasi ke DangerScreen
     navigatorKey.currentState?.pushNamed('/danger');
   }
 }

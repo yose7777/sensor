@@ -1,7 +1,7 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:vibration_sensor/main.dart';
+
 
 class LocalNotificationService {
   static final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin =
@@ -32,7 +32,7 @@ class LocalNotificationService {
       priority: Priority.high,
       fullScreenIntent: true,
       category: AndroidNotificationCategory.alarm,
-      sound: RawResourceAndroidNotificationSound('notif'),
+      // sound: RawResourceAndroidNotificationSound('notif'),
     );
 
     var generalNotificationDetails = NotificationDetails(android: androidDetails);
@@ -46,17 +46,11 @@ class LocalNotificationService {
     );
   }
 
-  static void handleNotificationNavigation(RemoteMessage message) {
-    handleNotificationNavigationPayload(message.data['screen'], navigatorKey);
-  }
-
   static void handleNotificationNavigationPayload(String? payload, GlobalKey<NavigatorState> navigatorKey) {
     if (payload == null) return;
     String? currentRoute = ModalRoute.of(navigatorKey.currentContext!)?.settings.name;
 
-    if (payload == "DangerScreen" && currentRoute != '/danger') {
-      navigatorKey.currentState?.pushNamedAndRemoveUntil('/danger', (route) => false);
-    } else if (payload == "HomeScreen" && currentRoute != '/home') {
+    if (payload == "HomeScreen" && currentRoute != '/home') {
       navigatorKey.currentState?.pushNamedAndRemoveUntil('/home', (route) => false);
     }
   }

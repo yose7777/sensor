@@ -1,66 +1,68 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
-import 'package:vibration_sensor/pages/home.dart';
+import 'package:lottie/lottie.dart';
 
 class DangerScreen extends StatefulWidget {
   @override
   _DangerScreenState createState() => _DangerScreenState();
 }
 
-class _DangerScreenState extends State<DangerScreen> {
-  bool _isRed = true;
-  Timer? _blinkTimer;
+class _DangerScreenState extends State<DangerScreen> with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<Color?> _animation;
 
   @override
   void initState() {
     super.initState();
-    _startBlinking();
-    _autoCloseScreen();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1), // Kecepatan kelap-kelip
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _animation = ColorTween(
+      begin: Colors.red.withOpacity(0.2),
+      end: Colors.red.withOpacity(0.8),
+    ).animate(_controller);
+
+
+    
   }
 
-  void _startBlinking() {
-    _blinkTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      if (mounted) {
-        setState(() {
-          _isRed = !_isRed;
-        });
-      }
-    });
-  }
 
-  void _autoCloseScreen() {
-    Future.delayed(const Duration(seconds: 5), () {
-      _blinkTimer?.cancel(); // Hentikan kelap-kelip sebelum pindah layar
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _animation,
+      builder: (context, child) {
+        return Scaffold(
+          backgroundColor: _animation.value,
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Lottie.asset('assets/ani.json', width: 150, height: 150), // Animasi bahaya
+                SizedBox(height: 20),
+                Text(
+                  "BAHAYA TERDETEKSI!",
+                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text("Kembali"),
+                ),
+              ],
+            ),
+          ),
         );
-      }
-    });
+      },
+    );
   }
 
   @override
   void dispose() {
-    _blinkTimer?.cancel(); // Pastikan timer dihentikan saat screen ditutup
+    _controller.dispose();
     super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: _isRed ? Colors.red : Colors.black, // Kelap-kelip merah & hitam
-      body: Center(
-        child: Text(
-          "⚠ BAHAYA TERDETEKSI! ⚠",
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-    );
   }
 }

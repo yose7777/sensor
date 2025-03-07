@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:vibration_sensor/model/data.dart';
 import 'package:vibration_sensor/servis/auth_service.dart';
-import 'package:vibration_sensor/servis/realtime.dart'; // Import FirebaseService
+import 'package:vibration_sensor/servis/realtime.dart';
+
+
 
 class HomePage extends StatefulWidget {
   @override

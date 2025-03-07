@@ -47,9 +47,16 @@ dependencies:
   firebase_analytics: ^11.4.2
   font_awesome_flutter: ^10.8.0
   flutter_screenutil: ^5.9.3
+  flutter_background_service: ^5.1.0
+  flutter_launcher_icons: ^0.14.3
+  rename: ^3.0.2
+
  
 
-
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/Picsart_25-03-07_14-24-17-462.png"
 
 
 
@@ -80,6 +87,8 @@ flutter:
   assets:
     - assets/ani.json
     - assets/1sfty.json
+    - assets/Picsart_25-03-07_14-24-17-462.png
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

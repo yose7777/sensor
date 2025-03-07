@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "818633417461",
+    "project_id": "tesnotif-da663",
+    "storage_bucket": "tesnotif-da663.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:818633417461:android:76d3f1bfcd0256f38c5bbc",
+        "android_client_info": {
+          "package_name": "com.example.apk_sensor"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBIM-_9EYhn-uR5tyQ96OzTfBNVgaq4uQ4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
